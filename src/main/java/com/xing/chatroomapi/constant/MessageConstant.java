@@ -6,4 +6,9 @@ package com.xing.chatroomapi.constant;
  *  @Descr IPTION:  常量
  */
 public interface MessageConstant {
+    String SECRETE_KEY = "SingingChat";
+    Long  EXPIRATION_TIME = 3600000000L;
+    Integer LOGIN_ERROR = 1001;
+    Integer SERVER_ERROR = 500;
+    Integer REGISTER_ERROR = 1002;
 }

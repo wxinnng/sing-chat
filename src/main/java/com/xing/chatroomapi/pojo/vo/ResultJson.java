@@ -27,10 +27,10 @@ public class ResultJson<T> implements Serializable {
         return resultJson;
     }
 
-    public static <T> ResultJson<T> error(String msg) {
+    public static <T> ResultJson<T> error(String msg,Integer code) {
         ResultJson resultJson = new ResultJson();
         resultJson.msg = msg;
-        resultJson.code = 0;
+        resultJson.code = code;
         return resultJson;
     }
 
