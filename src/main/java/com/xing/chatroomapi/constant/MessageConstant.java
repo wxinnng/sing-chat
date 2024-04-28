@@ -11,4 +11,6 @@ public interface MessageConstant {
     Integer LOGIN_ERROR = 1001;
     Integer SERVER_ERROR = 500;
     Integer REGISTER_ERROR = 1002;
+
+    String TOKEN_HEADER = "token";
 }
