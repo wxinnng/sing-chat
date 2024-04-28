@@ -1,0 +1,27 @@
+server:
+  port: 10086
+  host: localhost
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://${server.host}/chatroom?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: root
+      password: wx
+      max-wait: 3000
+
+  data:
+    mongodb:
+      host: 36.111.170.219
+      database: admin
+      port: 27017
+      username: root
+      password: '88888888'
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
