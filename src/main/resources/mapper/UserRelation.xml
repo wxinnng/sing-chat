@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xing.chatroomapi.mapper.UserRelationMapper">
+
+    <select id="getUserRelationList" resultType="com.xing.chatroomapi.pojo.entity.User">
+
+        <!--获得userRelation中对应的信息-->
+
+        select
+        u.id,u.nick_name,u.avatar
+        from
+        user_relation ur
+        join
+        user u
+        on u.id = ur.user_two
+        where
+        ur.user_one = #{currentUser}
+
+    </select>
+</mapper>

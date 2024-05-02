@@ -2,17 +2,19 @@ package com.xing.chatroomapi.controller;
 
 import com.xing.chatroomapi.constant.MessageConstant;
 import com.xing.chatroomapi.exception.BusinessException;
+import com.xing.chatroomapi.pojo.ChatSession;
+import com.xing.chatroomapi.pojo.Relation;
 import com.xing.chatroomapi.pojo.vo.ResultJson;
 import com.xing.chatroomapi.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 /**
@@ -22,7 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Controller
 @Slf4j
 @Api(value = "用户接口")
-@RestController("/user")
+@RestController
+@RequestMapping("/user")
 @SuppressWarnings("all")
 public class UserController extends BaseController{
 
@@ -54,7 +57,7 @@ public class UserController extends BaseController{
      */
     @ApiOperation("用户注册")
     @PostMapping("/register")
-    public ResultJson register(String nickName,String password){
+    public ResultJson register(@RequestParam String nickName,@RequestParam String password){
         log.info("用户注册 {}",nickName);
         try{
             return ResultJson.success(userService.register(nickName,password));
@@ -65,9 +68,83 @@ public class UserController extends BaseController{
         }
     }
 
-    @GetMapping("/test")
-    public String test(){
-        return "ddddddd";
+    /**
+     * @description: 查询用户
+     * @param: [java.lang.Integer]
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @ApiOperation("查询用户")
+    @GetMapping("/search")
+    public ResultJson searchUser(@RequestParam Integer id){
+        log.info("查找用户 {}",id);
+        try{
+            return ResultJson.success(userService.getUserInfoById(id));
+        }catch (Exception e){
+            return ResultJson.error("服务器异常！",MessageConstant.SERVER_ERROR);
+        }
     }
 
+    /**
+     * @description: 发送申请
+     * @param: [java.lang.Integer, java.lang.Integer]
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @ApiOperation("发送申请")
+    @PostMapping("/postApplication")
+    public ResultJson postApplication(@RequestParam Integer toTarget,@RequestParam Integer type){
+        log.info("向{} : {}发送申请",type,toTarget);
+        try {
+            userService.postApplication(toTarget,type);
+            return ResultJson.success("请求发送成功！");
+        } catch (BusinessException e) {
+            return ResultJson.error(e.getMessage(),MessageConstant.TARGET_NOT_FOUND);
+        }
+    }
+
+    /**
+     * @description:加载信息
+     * @param: []
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @ApiOperation("加载信息")
+    @GetMapping("/message")
+    public ResultJson loadMessage(){
+        log.info("加载message");
+        return ResultJson.success(userService.loadMessage());
+    }
+
+
+    /**
+     * @description: 处理请求
+     * @param: [java.lang.Integer, java.lang.Integer]
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @ApiOperation("处理申请")
+    @GetMapping("/operateApplication")
+    public ResultJson operateApplication(Integer applicationId,Integer type,Integer groupType){
+        log.info("处理申请");
+        try{
+            userService.operateApplication(applicationId,type,groupType);
+            return ResultJson.success();
+        }catch (BusinessException e){
+            return ResultJson.error(e.getMessage(),MessageConstant.PARAMS_ERROR);
+        }
+    }
+
+    /**
+     * @description: 加载用户Relations
+     * @param: []
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @ApiOperation("加载用户好友列表")
+    @GetMapping("/loadRelations")
+    public ResultJson loadUserRelationList(){
+        log.info("加载用户列表");
+        try {
+            List<ChatSession> relations = userService.loadRelationList();
+            return ResultJson.success(relations);
+        } catch (BusinessException e) {
+            return ResultJson.error("身份认证失败！",MessageConstant.USER_INFO_ERROR);
+        }
+    }
 }

@@ -8,17 +8,17 @@ import com.xing.chatroomapi.pojo.entity.User;
  */
 public class BaseContext {
 
-    public static ThreadLocal<User> threadLocal = new ThreadLocal<>();
+    public static ThreadLocal<Integer> threadLocal = new ThreadLocal<>();
 
-    public static void setCurrentId(User user) {
-        threadLocal.set(user);
+    public static void setCurrentUser(Integer id) {
+        threadLocal.set(id);
     }
 
-    public static User getCurrentId() {
+    public static Integer getCurrentUser() {
         return threadLocal.get();
     }
 
-    public static void removeCurrentId() {
+    public static void removeCurrentUser() {
         threadLocal.remove();
     }
 

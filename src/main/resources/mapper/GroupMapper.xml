@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xing.chatroomapi.mapper.GroupMapper">
+    <select id="getGroupRelation" resultType="com.xing.chatroomapi.pojo.entity.Group">
+        select
+            g.id,g.group_name,g.owner_id,g.cur_num,g.introduce,g.create_time
+        from member m
+            join group_info g
+            on g.id = m.group_id
+        where
+            m.user_id = #{currentUser}
+
+    </select>
+</mapper>

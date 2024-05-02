@@ -1,7 +1,6 @@
 package com.xing.chatroomapi.interceptor;
 
 import com.xing.chatroomapi.constant.MessageConstant;
-import com.xing.chatroomapi.pojo.entity.User;
 import com.xing.chatroomapi.util.BaseContext;
 import com.xing.chatroomapi.util.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -37,10 +36,10 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
             Claims claims = JwtUtil.parseJWT(MessageConstant.SECRETE_KEY, token);
 
             //解析出User
-            User targetUser = claims.get("user", User.class);
+            Integer userId = claims.get("user", Integer.class);
 
             //放到ThreadLocal中
-            BaseContext.setCurrentId(targetUser);
+            BaseContext.setCurrentUser(userId);
 
             return true;
         } catch (Exception ex) {
