@@ -1,6 +1,7 @@
 package com.xing.chatroomapi.config;
 
 import com.xing.chatroomapi.interceptor.JwtTokenInterceptor;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -82,4 +83,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
+
+
+
 }

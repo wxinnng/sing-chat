@@ -97,7 +97,7 @@ public class UserController extends BaseController{
             userService.postApplication(toTarget,type);
             return ResultJson.success("请求发送成功！");
         } catch (BusinessException e) {
-            return ResultJson.error(e.getMessage(),MessageConstant.TARGET_NOT_FOUND);
+            return ResultJson.error(e.getMessage(),e.code);
         }
     }
 

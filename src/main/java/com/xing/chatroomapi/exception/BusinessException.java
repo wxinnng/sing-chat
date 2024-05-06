@@ -7,7 +7,11 @@ package com.xing.chatroomapi.exception;
  */
 public class BusinessException extends Exception{
     public BusinessException(){}
+    public Integer code;
     public BusinessException(String msg){
+        super(msg);
+    }
+    public BusinessException(String msg,Integer code){
         super(msg);
     }
 }

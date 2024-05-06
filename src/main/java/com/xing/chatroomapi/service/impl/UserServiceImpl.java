@@ -138,11 +138,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public void postApplication(Integer toTarget, Integer type) throws BusinessException {
+        if(BaseContext.getCurrentUser().equals(toTarget)){
+            throw new BusinessException("你是你自己最好的朋友，不用申请~",MessageConstant.CANNOT_BE_YOURSELF_FRIEND);
+        }
+
+        if(userRelationMapper.selectByUsers(BaseContext.getCurrentUser(),toTarget)!=null){
+            throw new BusinessException("ta都是你的好友了，你还想怎么样！");
+        }
+
 
         //如果是加入群聊的话，发送的请求是向群主的
         User user = userMapper.selectById(toTarget);
         if (user == null){
-            throw new BusinessException("操作错误！");
+            throw new BusinessException("操作错误！",MessageConstant.PARAMS_ERROR);
         }
 
         //发送过请求，就不能再发了
@@ -154,7 +162,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //数据库中查询
         Application application1 = applicationMapper.selectOne(applicationQueryWrapper);
         if(application1 != null){
-            throw new BusinessException("你提交过申请了，在等等吧！");
+            throw new BusinessException("你提交过申请了，在等等吧！",MessageConstant.ALREADY_POST_REQUEST);
         }
 
         //插入一条请求

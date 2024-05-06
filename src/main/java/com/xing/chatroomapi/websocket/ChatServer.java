@@ -2,7 +2,10 @@ package com.xing.chatroomapi.websocket;
 
 import com.alibaba.fastjson.JSON;
 import com.xing.chatroomapi.pojo.entity.Message;
+import com.xing.chatroomapi.service.ChatService;
+import com.xing.chatroomapi.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.OnClose;
@@ -28,6 +31,13 @@ public class ChatServer {
     //保存在线的会话
     private static Map<Integer, Session> sessionMap = new HashMap<>();
 
+    private static ChatService chatService;
+
+    @Autowired
+    public void setApplicationContext(ChatService chatService){
+        ChatServer.chatService = chatService;
+    }
+
 
     /**
      * 连接建立成功调用的方法,登录的时候调用这个方法
@@ -47,16 +57,18 @@ public class ChatServer {
     public void onMessage(String message, @PathParam("userid") String userid) {
         log.info("用户：{}，发送信息：{}",userid,message);
 
-        for (Session value : sessionMap.values()) {
-            System.out.println(value);
-        }
         Message parseObject = null;
         try{
             parseObject = JSON.parseObject(message, Message.class);
         }catch (Exception e){
             log.error(e.getMessage());
         }
+
+        //设置发送消息的时间
         parseObject.setCreateTime(LocalDateTime.now());  //设置发送时间
+
+        //设置chatId
+        parseObject.setChatId(StringUtil.getIdByUserIds(parseObject.getUserId(), parseObject.getTargetId()));
 
         //拿到target的session，如果是群的话，需要群发
         if(parseObject.getType() == 1){
@@ -68,14 +80,13 @@ public class ChatServer {
             if(targetSession != null){
                 //说明用户在线，直接把信息发送给他
                 try {
-                    targetSession.getBasicRemote().sendText(parseObject.getBody());
+                    targetSession.getBasicRemote().sendText(JSON.toJSONString(parseObject));
                 } catch (IOException e) {
                     log.error("消息发送失败 : {}",e.getMessage());
                 }
             }
             //把信息放到MongoDB中去
-
-
+            chatService.saveChatMessage(parseObject);
 
         }else{
             //群发
