@@ -1,8 +1,10 @@
 package com.xing.chatroomapi.websocket;
 
 import com.alibaba.fastjson.JSON;
+import com.xing.chatroomapi.constant.MessageConstant;
 import com.xing.chatroomapi.pojo.entity.Message;
 import com.xing.chatroomapi.service.ChatService;
+import com.xing.chatroomapi.util.RedisUtil;
 import com.xing.chatroomapi.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +35,16 @@ public class ChatServer {
 
     private static ChatService chatService;
 
+    private static RedisUtil redisUtil;
+
     @Autowired
     public void setApplicationContext(ChatService chatService){
         ChatServer.chatService = chatService;
+    }
+
+    @Autowired
+    public void setRedisUtil(RedisUtil redisUtil){
+        ChatServer.redisUtil = redisUtil;
     }
 
 
@@ -44,8 +53,10 @@ public class ChatServer {
      */
     @OnOpen
     public void onOpen(Session session, @PathParam("userid") Integer userid) {
-        log.info("{} 与服务器进行连接.",userid);
-        sessionMap.put(userid , session);
+        log.info("{} 与服务器进行连接.", userid);
+        sessionMap.put(userid, session);
+        //把用户上线的信息放到redis中去
+        redisUtil.set(MessageConstant.USER_ONLINE_REDIS_KEY + userid, "1");
     }
 
     /**
@@ -94,7 +105,6 @@ public class ChatServer {
 
         }
 
-
     }
 
     /**
@@ -105,6 +115,8 @@ public class ChatServer {
     public void onClose(@PathParam("userid") Integer userid) {
         log.info("{} :关闭连接" , userid);
         sessionMap.remove(userid);
+        //关闭连接，在redis中删除对应用户的连接信息
+        redisUtil.del(MessageConstant.USER_ONLINE_REDIS_KEY+userid);
     }
 
 

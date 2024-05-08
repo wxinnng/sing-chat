@@ -22,4 +22,5 @@ public interface MessageConstant {
     Integer USER_INFO_ERROR = 1005;
     String TOKEN_HEADER = "token";
     String COLLECTION_NAME = "chat_message";
+    String USER_ONLINE_REDIS_KEY = "user_online:";
 }

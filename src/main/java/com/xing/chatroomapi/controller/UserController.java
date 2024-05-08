@@ -3,12 +3,11 @@ package com.xing.chatroomapi.controller;
 import com.xing.chatroomapi.constant.MessageConstant;
 import com.xing.chatroomapi.exception.BusinessException;
 import com.xing.chatroomapi.pojo.ChatSession;
-import com.xing.chatroomapi.pojo.Relation;
 import com.xing.chatroomapi.pojo.vo.ResultJson;
 import com.xing.chatroomapi.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.Response;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -106,7 +105,7 @@ public class UserController extends BaseController{
      * @param: []
      * @return: com.xing.chatroomapi.pojo.vo.ResultJson
      */
-    @ApiOperation("加载信息")
+    @ApiOperation("加载申请信息")
     @GetMapping("/message")
     public ResultJson loadMessage(){
         log.info("加载message");
@@ -158,5 +157,18 @@ public class UserController extends BaseController{
     public ResultJson loadCreateGroupUserList(){
         log.info("loadCreateGroupUserList");
         return ResultJson.success(userService.loadCreateGroupUserList());
+    }
+
+
+    /**
+     * @description: 获得目标用户的状态
+     * @param: [java.lang.Integer]
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @GetMapping("/status")
+    @ApiOperation("获得目标用户状态")
+    public ResultJson loadCurrentStatus(@RequestParam Integer userId){
+        log.info("加载用户：{} 状态",userId);
+        return ResultJson.success(userService.getUserStatusById(userId));
     }
 }

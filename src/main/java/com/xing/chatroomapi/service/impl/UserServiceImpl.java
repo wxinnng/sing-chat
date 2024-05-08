@@ -14,11 +14,13 @@ import com.xing.chatroomapi.pojo.vo.UserVO;
 import com.xing.chatroomapi.service.UserService;
 import com.xing.chatroomapi.util.BaseContext;
 import com.xing.chatroomapi.util.JwtUtil;
+import com.xing.chatroomapi.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +41,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private MemberMapper memberMapper;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     @Autowired
     private ApplicationMapper applicationMapper;
@@ -76,6 +81,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public List<CreateGroupUserDTO> loadCreateGroupUserList() {
         return userRelationMapper.getCreateGroupUserDTOListByUserId(BaseContext.getCurrentUser());
+    }
+
+    @Override
+    public Integer getUserStatusById(Integer userId) {
+        return redisUtil.exists(MessageConstant.USER_ONLINE_REDIS_KEY + userId) ? 1 : 0;
     }
 
     @Override

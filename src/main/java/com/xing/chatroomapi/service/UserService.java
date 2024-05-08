@@ -70,4 +70,11 @@ public interface UserService extends IService<User> {
      * @return: java.util.List<com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO>
      */
     List<CreateGroupUserDTO> loadCreateGroupUserList();
+
+    /**
+     * @description: 加载用户状态
+     * @param: [java.lang.Integer]
+     * @return: java.lang.Integer
+     */
+    Integer getUserStatusById(Integer userId);
 }

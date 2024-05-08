@@ -26,7 +26,10 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<Message> getMessageByChatId(Integer user1,Integer user2,Integer type) {
+    public List<Message> getMessageByChatId(Integer user1, Integer user2, Integer type) {
+
+        //返回的
+
         Query query = new Query();
         if(type == 1){
             //好友聊天记录
@@ -35,6 +38,7 @@ public class ChatServiceImpl implements ChatService {
             //群聊天记录
             query.addCriteria(Criteria.where("targetId").is(user2));
         }
-        return mongoTemplate.find(query,Message.class,"chat_message");
+        return mongoTemplate.find(query, Message.class, "chat_message");
+
     }
 }

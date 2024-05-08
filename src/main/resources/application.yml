@@ -13,7 +13,18 @@ spring:
       username: root
       password: wx
       max-wait: 3000
-
+  redis:
+    port: 6379        #redis端口
+    host: ${server.host}   #主机ip
+    database: 0       #默认数据库
+    timeout: 1800000  #连接超时时间
+    password: wangxing #Redis数据库密码
+    lettuce:
+      pool:
+        max-active: 8 #最大连接数
+        max-wait: -1  #最大等待时间
+        max-idle: 5
+        min-idle: 0
   data:
     mongodb:
       host: 36.111.170.219
