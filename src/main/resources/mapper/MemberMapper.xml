@@ -12,4 +12,16 @@
             (#{member.userId}, #{member.groupId}, #{member.isOwner}, #{member.joinTime})
         </foreach>
     </insert>
+    <select id="getMemberDTOByGroupId" resultType="com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO">
+        select
+            u.id ,u.nick_name,u.avatar
+        from
+            member m
+        left join
+            user u
+        on
+            m.user_id = u.id
+        where
+            m.group_id = #{id}
+    </select>
 </mapper>

@@ -171,4 +171,16 @@ public class UserController extends BaseController{
         log.info("加载用户：{} 状态",userId);
         return ResultJson.success(userService.getUserStatusById(userId));
     }
+
+    /**
+     * @description: 获得关系的详细信息
+     * @param: [java.lang.Integer, java.lang.Integer]
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @GetMapping("/relationDetail/{id}/{type}")
+    @ApiOperation("获得关系的详细信息")
+    public ResultJson loadRelationDetail(@PathVariable("id") Integer id,@PathVariable("type") Integer type){
+        log.info("加载关系的详细信息{}",id);
+        return ResultJson.success(userService.loadRelationDetail(id,type));
+    }
 }

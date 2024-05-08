@@ -72,4 +72,17 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         memberMapper.saveBatch(members);
 
     }
+
+    @Override
+    public Group getGroupRelationDetail(Integer id) {
+        Group result = new Group();
+
+        //查询的最后结果
+        result = groupMapper.selectById(id);
+
+        //填充memberList
+        result.setMemberList(memberMapper.getMemberDTOByGroupId(id));
+
+        return result;
+    }
 }

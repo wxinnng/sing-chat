@@ -1,6 +1,7 @@
 package com.xing.chatroomapi.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xing.chatroomapi.pojo.Relation;
 import com.xing.chatroomapi.pojo.entity.Group;
 import com.xing.chatroomapi.pojo.entity.User;
 
@@ -18,4 +19,6 @@ public interface GroupService extends IService<Group> {
      * @return: void
      */
     void createGroup(String groupName, String groupInfo, List<Integer> memberIds);
+
+    Group getGroupRelationDetail(Integer id);
 }

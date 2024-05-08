@@ -3,6 +3,7 @@ package com.xing.chatroomapi.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xing.chatroomapi.exception.BusinessException;
 import com.xing.chatroomapi.pojo.ChatSession;
+import com.xing.chatroomapi.pojo.Relation;
 import com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO;
 import com.xing.chatroomapi.pojo.entity.User;
 import com.xing.chatroomapi.pojo.vo.ApplicationVO;
@@ -77,4 +78,6 @@ public interface UserService extends IService<User> {
      * @return: java.lang.Integer
      */
     Integer getUserStatusById(Integer userId);
+
+    Relation loadRelationDetail(Integer id, Integer type);
 }

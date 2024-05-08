@@ -1,14 +1,18 @@
 package com.xing.chatroomapi.pojo.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.xing.chatroomapi.pojo.ChatSession;
 import com.xing.chatroomapi.pojo.Relation;
+import com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO;
+import com.xing.chatroomapi.pojo.vo.UserVO;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @Author:WangXing
@@ -25,4 +29,7 @@ public class Group implements Serializable,ChatSession,Relation{
     private Integer curNum;
     private String introduce;
     private LocalDateTime createTime;
+
+    @TableField(exist = false)
+    private List<CreateGroupUserDTO> memberList;
 }

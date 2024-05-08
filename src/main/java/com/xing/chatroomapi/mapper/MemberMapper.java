@@ -1,6 +1,7 @@
 package com.xing.chatroomapi.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO;
 import com.xing.chatroomapi.pojo.entity.Member;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -19,4 +20,6 @@ public interface MemberMapper extends BaseMapper<Member> {
      * @return: void
      */
     void saveBatch(List<Member> members);
+
+    List<CreateGroupUserDTO> getMemberDTOByGroupId(Integer id);
 }

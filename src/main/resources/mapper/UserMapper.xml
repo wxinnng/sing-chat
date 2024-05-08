@@ -5,4 +5,16 @@
 <mapper namespace="com.xing.chatroomapi.mapper.UserMapper">
 
 
+    <select id="getUserRelationDetail" resultType="com.xing.chatroomapi.pojo.entity.User">
+        select
+            u.id,u.avatar,u.nick_name, ur.create_time
+        from
+            user u
+        left join
+            user_relation ur
+        on
+            u.id = ur.user_one
+        where
+            u.id = #{id} and ur.user_two = #{localId}
+    </select>
 </mapper>

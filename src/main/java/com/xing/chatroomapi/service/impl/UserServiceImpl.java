@@ -11,6 +11,7 @@ import com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO;
 import com.xing.chatroomapi.pojo.entity.*;
 import com.xing.chatroomapi.pojo.vo.ApplicationVO;
 import com.xing.chatroomapi.pojo.vo.UserVO;
+import com.xing.chatroomapi.service.GroupService;
 import com.xing.chatroomapi.service.UserService;
 import com.xing.chatroomapi.util.BaseContext;
 import com.xing.chatroomapi.util.JwtUtil;
@@ -41,6 +42,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private MemberMapper memberMapper;
+
+    @Autowired
+    private GroupService groupService;
 
     @Resource
     private RedisUtil redisUtil;
@@ -86,6 +90,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Integer getUserStatusById(Integer userId) {
         return redisUtil.exists(MessageConstant.USER_ONLINE_REDIS_KEY + userId) ? 1 : 0;
+    }
+
+    @Override
+    public Relation loadRelationDetail(Integer id, Integer type) {
+        if(type == 1){
+            return userMapper.getUserRelationDetail(id,BaseContext.getCurrentUser());
+        }else{
+            return groupService.getGroupRelationDetail(id);
+        }
     }
 
     @Override
