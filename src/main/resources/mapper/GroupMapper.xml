@@ -11,6 +11,5 @@
             on g.id = m.group_id
         where
             m.user_id = #{currentUser}
-
     </select>
 </mapper>

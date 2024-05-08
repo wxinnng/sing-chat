@@ -7,6 +7,7 @@ import com.xing.chatroomapi.exception.BusinessException;
 import com.xing.chatroomapi.mapper.*;
 import com.xing.chatroomapi.pojo.ChatSession;
 import com.xing.chatroomapi.pojo.Relation;
+import com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO;
 import com.xing.chatroomapi.pojo.entity.*;
 import com.xing.chatroomapi.pojo.vo.ApplicationVO;
 import com.xing.chatroomapi.pojo.vo.UserVO;
@@ -70,6 +71,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         result.addAll(groupRelation);
 
         return result;
+    }
+
+    @Override
+    public List<CreateGroupUserDTO> loadCreateGroupUserList() {
+        return userRelationMapper.getCreateGroupUserDTOListByUserId(BaseContext.getCurrentUser());
     }
 
     @Override

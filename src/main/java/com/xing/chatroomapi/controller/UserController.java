@@ -147,4 +147,16 @@ public class UserController extends BaseController{
             return ResultJson.error("身份认证失败！",MessageConstant.USER_INFO_ERROR);
         }
     }
+
+    /**
+     * @description: 加载创建群聊时，可供选择的好友
+     * @param: []
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @GetMapping("/createGroupUserList")
+    @ApiOperation("加载创建群聊时，显示的好友信息[nickName,avatar,id]")
+    public ResultJson loadCreateGroupUserList(){
+        log.info("loadCreateGroupUserList");
+        return ResultJson.success(userService.loadCreateGroupUserList());
+    }
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xing.chatroomapi.mapper.MemberMapper">
+
+    <!-- 批量插入Member -->
+    <insert id="saveBatch" parameterType="list">
+        INSERT INTO member (user_id, group_id, is_owner, join_time)
+        VALUES
+        <foreach collection="list" item="member" separator=",">
+            (#{member.userId}, #{member.groupId}, #{member.isOwner}, #{member.joinTime})
+        </foreach>
+    </insert>
+</mapper>

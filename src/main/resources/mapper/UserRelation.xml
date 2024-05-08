@@ -19,4 +19,20 @@
         ur.user_one = #{currentUser}
 
     </select>
+
+    <select id="getCreateGroupUserDTOListByUserId" resultType="com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO">
+        <!--获得userRelation中对应的信息-->
+        select
+        u.id,u.nick_name,u.avatar
+        from
+        user_relation ur
+        join
+        user u
+        on u.id = ur.user_two
+        where
+        ur.user_one = #{currentUser}
+
+    </select>
+
+
 </mapper>
