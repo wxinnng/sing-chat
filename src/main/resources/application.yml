@@ -27,11 +27,11 @@ spring:
         min-idle: 0
   data:
     mongodb:
-      host: 36.111.170.219
+      host: localhost
       database: admin
       port: 27017
       username: root
-      password: '88888888'
+      password: yourpassword
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

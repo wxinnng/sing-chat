@@ -13,5 +13,8 @@ public class UserVO {
     private String nickName;
     private String avatar;
     private String password;
+    private String email;
+    private String phone;
+    private Integer age;
     private String token;
 }

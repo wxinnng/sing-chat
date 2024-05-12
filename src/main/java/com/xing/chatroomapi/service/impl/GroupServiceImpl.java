@@ -1,6 +1,9 @@
 package com.xing.chatroomapi.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.xing.chatroomapi.exception.BusinessException;
 import com.xing.chatroomapi.mapper.GroupMapper;
 import com.xing.chatroomapi.mapper.MemberMapper;
 import com.xing.chatroomapi.pojo.entity.Group;
@@ -66,10 +69,43 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             members.add(member);
         }
 
-        System.err.println(members);
-
         //批量插入用户信息
         memberMapper.saveBatch(members);
+
+    }
+
+    @Override
+    public List<Integer> getMemberIdsByGroupId(Integer targetId) {
+        return memberMapper.getMemberIdsByGroupId(targetId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void outGroup(Integer id) throws BusinessException {
+        //判断是不是群主
+        LambdaUpdateWrapper<Member> queryWrapper = new LambdaUpdateWrapper<>();
+        queryWrapper.eq(Member::getGroupId,id).eq(Member::getUserId,BaseContext.getCurrentUser());
+        Member member = memberMapper.selectOne(queryWrapper);
+
+        if(member == null){
+            throw new BusinessException("参数异常！");
+        }
+
+        if(member.getIsOwner() == 1){
+            //群主，解散群聊
+            //删除member信息
+            queryWrapper = new LambdaUpdateWrapper<>();
+            queryWrapper.eq(Member::getGroupId,id);
+            memberMapper.delete(queryWrapper);
+
+            //删除group信息
+            groupMapper.deleteById(id);
+
+        }else{
+            //群友，退出群聊
+            memberMapper.delete(queryWrapper);
+            groupMapper.deCurNum(id);
+        }
 
     }
 
@@ -78,7 +114,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         Group result = new Group();
 
         //查询的最后结果
-        result = groupMapper.selectById(id);
+        result = groupMapper.getGroupRelationDetail(id,BaseContext.getCurrentUser());
 
         //填充memberList
         result.setMemberList(memberMapper.getMemberDTOByGroupId(id));

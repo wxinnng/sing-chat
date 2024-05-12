@@ -32,4 +32,7 @@ public class Group implements Serializable,ChatSession,Relation{
 
     @TableField(exist = false)
     private List<CreateGroupUserDTO> memberList;
+
+    @TableField(exist = false)
+    private LocalDateTime time;
 }

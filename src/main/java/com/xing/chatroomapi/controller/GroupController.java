@@ -1,6 +1,7 @@
 package com.xing.chatroomapi.controller;
 
 
+import com.xing.chatroomapi.exception.BusinessException;
 import com.xing.chatroomapi.pojo.vo.CreateGroupVO;
 import com.xing.chatroomapi.pojo.vo.ResultJson;
 import com.xing.chatroomapi.service.GroupService;
@@ -37,6 +38,18 @@ public class GroupController {
         log.info("创建群聊");
         groupService.createGroup(createGroupVO.getGroupName(), createGroupVO.getGroupInfo(), createGroupVO.getMemberIds());
         return ResultJson.success();
+    }
+
+    @ApiOperation("解散/退出群聊")
+    @GetMapping("/outGroup/{id}")
+    public ResultJson outGroup(@PathVariable Integer id){
+        log.info("outGroup : {}",id);
+        try {
+            groupService.outGroup(id);
+            return ResultJson.success();
+        } catch (BusinessException e) {
+            return ResultJson.error("操作异常！",0);
+        }
     }
 
 }

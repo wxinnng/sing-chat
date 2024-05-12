@@ -3,8 +3,12 @@ package com.xing.chatroomapi.controller;
 import com.xing.chatroomapi.constant.MessageConstant;
 import com.xing.chatroomapi.exception.BusinessException;
 import com.xing.chatroomapi.pojo.ChatSession;
+import com.xing.chatroomapi.pojo.entity.User;
 import com.xing.chatroomapi.pojo.vo.ResultJson;
 import com.xing.chatroomapi.service.UserService;
+import com.xing.chatroomapi.util.BaseContext;
+import com.xing.chatroomapi.util.FileUtil;
+import com.xing.chatroomapi.util.TencentCosUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.models.auth.In;
@@ -12,7 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 
 
@@ -91,7 +97,7 @@ public class UserController extends BaseController{
     @ApiOperation("发送申请")
     @PostMapping("/postApplication")
     public ResultJson postApplication(@RequestParam Integer toTarget,@RequestParam Integer type){
-        log.info("向{} : {}发送申请",type,toTarget);
+        log.info("向{} : {}发送申请",toTarget,type);
         try {
             userService.postApplication(toTarget,type);
             return ResultJson.success("请求发送成功！");
@@ -182,5 +188,72 @@ public class UserController extends BaseController{
     public ResultJson loadRelationDetail(@PathVariable("id") Integer id,@PathVariable("type") Integer type){
         log.info("加载关系的详细信息{}",id);
         return ResultJson.success(userService.loadRelationDetail(id,type));
+    }
+
+    /**
+     * @description: 更新用户其他信息
+     * @param: [org.springframework.web.multipart.MultipartFile]
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @PostMapping("/upAvatar")
+    @ApiOperation("上传头像")
+    public ResultJson updateAvatar(@RequestParam MultipartFile file){
+        log.info("上传头像");
+
+        //传到oos中
+        String url = TencentCosUtil.uploadfile(file);
+
+        //封装用户信息
+        User user = new User();
+        user.setAvatar(url);
+        user.setId(BaseContext.getCurrentUser());
+        userService.updateUserInfo(user);
+        return ResultJson.success(url);
+    }
+
+
+    /**
+     * @description: 更新用户信息
+     * @param: [com.xing.chatroomapi.pojo.entity.User]
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @PostMapping("/updateUserInfo")
+    @ApiOperation("更新用户其他信息")
+    public ResultJson updateUserInfo(@RequestBody User user){
+        log.info("user info => {}",user);
+
+        //如果user是null，可以直接返回了
+        if(user == null)
+            return ResultJson.success();
+
+        user.setId(BaseContext.getCurrentUser());
+        userService.updateUserInfo(user);
+        return ResultJson.success();
+    }
+
+
+    /**
+     * @description: 加载id-userinfo 的 hash数据结构
+     * @param: [java.lang.Integer, java.lang.Integer]
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @GetMapping("/loadUserInfoHash")
+    @ApiOperation("加载id-userinfo 的 hash数据结构")
+    public ResultJson loadIdUserInfoHash(@RequestParam Integer id,@RequestParam Integer type){
+        log.info("加载id-userinfo 的 hash数据结构");
+        return ResultJson.success(userService.loadIdUserInfoHash(id,type));
+    }
+
+    /**
+     * @description: 删除好友
+     * @param: [java.lang.Integer]
+     * @return: com.xing.chatroomapi.pojo.vo.ResultJson
+     */
+    @GetMapping("/remove/{id}")
+    @ApiOperation("删除用户")
+    public ResultJson removeUser(@PathVariable("id")Integer id){
+        log.info("删除用户 {}",id);
+        userService.removeUser(id);
+        return ResultJson.success();
     }
 }

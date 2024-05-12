@@ -3,11 +3,23 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xing.chatroomapi.mapper.UserMapper">
+    <update id="updateUserInfo">
+        UPDATE user
+        <set>
+            <if test="nickName != null">nick_name = #{nickName},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="phone != null">phone = #{phone}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
 
 
     <select id="getUserRelationDetail" resultType="com.xing.chatroomapi.pojo.entity.User">
         select
-            u.id,u.avatar,u.nick_name, ur.create_time
+            u.id,u.avatar,u.nick_name, u.age,u.phone,u.email,ur.create_time time
         from
             user u
         left join
@@ -16,5 +28,15 @@
             u.id = ur.user_one
         where
             u.id = #{id} and ur.user_two = #{localId}
+    </select>
+    <select id="getUserBaseInfoBatch" parameterType="list" resultType="com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO">
+        select id,nick_name,avatar
+        from
+        user
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+
     </select>
 </mapper>

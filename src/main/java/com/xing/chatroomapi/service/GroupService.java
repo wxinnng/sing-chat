@@ -1,6 +1,7 @@
 package com.xing.chatroomapi.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xing.chatroomapi.exception.BusinessException;
 import com.xing.chatroomapi.pojo.Relation;
 import com.xing.chatroomapi.pojo.entity.Group;
 import com.xing.chatroomapi.pojo.entity.User;
@@ -21,4 +22,8 @@ public interface GroupService extends IService<Group> {
     void createGroup(String groupName, String groupInfo, List<Integer> memberIds);
 
     Group getGroupRelationDetail(Integer id);
+
+    List<Integer> getMemberIdsByGroupId(Integer targetId);
+
+    void outGroup(Integer id) throws BusinessException;
 }

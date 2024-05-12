@@ -23,4 +23,10 @@ public class User implements ChatSession, Relation {
     private String nickName;
     private String avatar;
     private String password;
+    private Integer age;
+    private String email;
+    private String phone;
+
+    @TableField(exist = false)
+    private LocalDateTime time;
 }

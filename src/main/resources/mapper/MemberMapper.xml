@@ -24,4 +24,7 @@
         where
             m.group_id = #{id}
     </select>
+    <select id="getMemberIdsByGroupId" resultType="java.lang.Integer">
+        select user_id from member where group_id = #{id}
+    </select>
 </mapper>

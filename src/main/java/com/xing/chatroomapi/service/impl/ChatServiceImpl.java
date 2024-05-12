@@ -35,7 +35,7 @@ public class ChatServiceImpl implements ChatService {
             //好友聊天记录
             query.addCriteria(Criteria.where("chatId").is(StringUtil.getIdByUserIds(user1,user2)));
         }else{
-            //群聊天记录
+            //群聊天记录:user2 是groupId,也就是chatID。
             query.addCriteria(Criteria.where("targetId").is(user2));
         }
         return mongoTemplate.find(query, Message.class, "chat_message");

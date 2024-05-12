@@ -9,6 +9,7 @@ import com.xing.chatroomapi.pojo.ChatSession;
 import com.xing.chatroomapi.pojo.Relation;
 import com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO;
 import com.xing.chatroomapi.pojo.entity.*;
+import com.xing.chatroomapi.pojo.vo.ApplicationResultVO;
 import com.xing.chatroomapi.pojo.vo.ApplicationVO;
 import com.xing.chatroomapi.pojo.vo.UserVO;
 import com.xing.chatroomapi.service.GroupService;
@@ -16,6 +17,7 @@ import com.xing.chatroomapi.service.UserService;
 import com.xing.chatroomapi.util.BaseContext;
 import com.xing.chatroomapi.util.JwtUtil;
 import com.xing.chatroomapi.util.RedisUtil;
+import com.xing.chatroomapi.websocket.ChatServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author:WangXing
@@ -48,6 +51,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private RedisUtil redisUtil;
+
+    @Autowired
+    private ChatServer chatServer;
 
     @Autowired
     private ApplicationMapper applicationMapper;
@@ -88,8 +94,47 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    public void removeUser(Integer id) {
+        //删除好友就是删除userRelation表中对应的信息
+        userRelationMapper.removeRelation(id,BaseContext.getCurrentUser());
+    }
+
+    @Override
+    public HashMap<Integer, CreateGroupUserDTO> loadIdUserInfoHash(Integer id, Integer type) {
+
+        HashMap<Integer,CreateGroupUserDTO> hash = new HashMap<>();
+
+        if(type == 1) {
+            //user
+            CreateGroupUserDTO userBaseInfo = userMapper.getUserBaseInfo(id);
+            hash.put(id,userBaseInfo);
+
+        }else{
+            //group
+
+            //先找到对应群中的所有成员信息
+            List<Integer> ids = memberMapper.getMemberIdsByGroupId(id);
+
+            //对应的用户信息
+            List<CreateGroupUserDTO> userBaseInfoBatch = userMapper.getUserBaseInfoBatch(ids);
+
+            //放到hash结构中
+            for (CreateGroupUserDTO baseInfoBatch : userBaseInfoBatch) {
+                hash.put(baseInfoBatch.getId(),baseInfoBatch);
+            }
+
+        }
+        return hash;
+    }
+
+    @Override
     public Integer getUserStatusById(Integer userId) {
         return redisUtil.exists(MessageConstant.USER_ONLINE_REDIS_KEY + userId) ? 1 : 0;
+    }
+
+    @Override
+    public void updateUserInfo(User user) {
+        userMapper.updateUserInfo(user);
     }
 
     @Override
@@ -111,6 +156,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(update == null){
             throw new BusinessException("参数异常");
         }
+
+        //socket信息提醒
+        ApplicationResultVO applicationResultVO = new ApplicationResultVO();
+        applicationResultVO.setUserId(update.getFromUser());
+        applicationResultVO.setResult(type);  //1 同意 2 拒绝
+        applicationResultVO.setPushType(1);
+
+
         //更新对应的状态
         update.setStatus(type);
         update.setId(applicationId);
@@ -118,6 +171,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         //如果拒绝的话，直接跳出
         if(type == 2) {
+            applicationResultVO.setMsg("你的请求被拒绝了... :(");
+            chatServer.sendMessageToClient(applicationResultVO);
             return;
         }
 
@@ -156,6 +211,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             memberMapper.insert(member);
 
         }
+
+        //申请同意成功！
+        applicationResultVO.setMsg("你的申请被同意了，快去聊天吧~");
+        chatServer.sendMessageToClient(applicationResultVO);
     }
 
     @Override
@@ -178,14 +237,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         //如果是加入群聊的话，发送的请求是向群主的
         User user = userMapper.selectById(toTarget);
+
+        //群聊ID
+        Integer groupId = null;
+
         if (user == null){
-            throw new BusinessException("操作错误！",MessageConstant.PARAMS_ERROR);
+            //可能是申请入群
+            QueryWrapper<Member> memberQueryWrapper = new QueryWrapper<>();
+            memberQueryWrapper.eq("group_id",toTarget).eq("user_id",BaseContext.getCurrentUser());
+
+            if(memberMapper.selectOne(memberQueryWrapper) != null)
+                throw new BusinessException("你已经在群里啦！");
+
+            groupId = toTarget;
+
+            // 不为null，toTarget就是群主的id，向他发送请求即可
+            toTarget = memberMapper.getGroupOwnerByGroupId(toTarget);
+
+            //
+            if(toTarget == null)
+                throw new BusinessException("操作错误！",MessageConstant.PARAMS_ERROR);
         }
 
         //发送过请求，就不能再发了
         QueryWrapper<Application> applicationQueryWrapper = new QueryWrapper<>();
         applicationQueryWrapper.eq("to_user",toTarget);
         applicationQueryWrapper.eq("from_user",BaseContext.getCurrentUser());
+        applicationQueryWrapper.eq("type",type);
         applicationQueryWrapper.eq("status",MessageConstant.PENDING_APPROVAL);
 
         //数据库中查询
@@ -201,9 +279,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         application.setStatus(MessageConstant.PENDING_APPROVAL);
         application.setCreateTime(LocalDateTime.now());
         application.setType(type);
+        application.setGroupId(groupId);  //如果不是加入群聊申请的话，groupId就是NUll
+
 
         //插入一条数据
         applicationMapper.insert(application);
+
+        //如果用户在线的话，把信息推送给对应的用户，没在线就不用操作
+        ApplicationResultVO applicationResultVO = new ApplicationResultVO();
+        applicationResultVO.setUserId(toTarget);
+        applicationResultVO.setPushType(2);
+        chatServer.sendMessageToClient(applicationResultVO);
+
     }
 
     @Override
@@ -239,6 +326,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         result.setAvatar(targetUser.getAvatar());
         result.setNickName(targetUser.getNickName());
         result.setId(targetUser.getId());
+        result.setPhone(targetUser.getPhone());
+        result.setAge(targetUser.getAge());
+        result.setEmail(targetUser.getEmail());
 
         //生成token
         HashMap<String, Object> params = new HashMap<>();

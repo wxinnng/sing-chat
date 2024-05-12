@@ -3,7 +3,9 @@ package com.xing.chatroomapi.websocket;
 import com.alibaba.fastjson.JSON;
 import com.xing.chatroomapi.constant.MessageConstant;
 import com.xing.chatroomapi.pojo.entity.Message;
+import com.xing.chatroomapi.pojo.vo.ApplicationResultVO;
 import com.xing.chatroomapi.service.ChatService;
+import com.xing.chatroomapi.service.GroupService;
 import com.xing.chatroomapi.util.RedisUtil;
 import com.xing.chatroomapi.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +40,8 @@ public class ChatServer {
 
     private static RedisUtil redisUtil;
 
+    private static GroupService groupService;
+
     @Autowired
     public void setApplicationContext(ChatService chatService){
         ChatServer.chatService = chatService;
@@ -46,6 +51,9 @@ public class ChatServer {
     public void setRedisUtil(RedisUtil redisUtil){
         ChatServer.redisUtil = redisUtil;
     }
+
+    @Autowired
+    private void setGroupService(GroupService groupService){ChatServer.groupService = groupService;}
 
 
     /**
@@ -100,12 +108,57 @@ public class ChatServer {
             chatService.saveChatMessage(parseObject);
 
         }else{
-            //群发
+            //群发(前提是在线)
+            //1.先找到对应的group下所有的用户
+            List<Integer> ids = groupService.getMemberIdsByGroupId(parseObject.getTargetId());
 
+            //1.2去掉自己
+            ids.remove(parseObject.getUserId());
 
+            //2.遍历list，给在线的用户推送信息
+            for (Integer id : ids) {
+                if(sessionMap.containsKey(id)){
+                    try {
+                        sessionMap.get(id).getBasicRemote().sendText(JSON.toJSONString(parseObject));
+                    } catch (IOException e) {
+                        log.info("群发信息失败！");
+                    }
+                }
+            }
+
+            //把信息放到mongoDB中,群聊信息中，groupId 就是 chatId
+            parseObject.setChatId(parseObject.getTargetId()+"");
+
+            chatService.saveChatMessage(parseObject);
         }
 
     }
+
+
+    /**
+     * @description: 给前端发送信息
+     * @param: []
+     * @return: void
+     */
+    public void sendMessageToClient(ApplicationResultVO resultVO){
+
+        //拿到目标用户的session
+        Session session = sessionMap.get(resultVO.getUserId());
+
+
+        //对应的用户没在线，也没有必要推送信息了
+        if(session == null)
+            return;
+
+        try {
+            //发送信息
+            session.getBasicRemote().sendText(JSON.toJSONString(resultVO));
+
+        } catch (IOException e) {
+            System.err.println("信息推送失败!");
+        }
+    }
+
 
     /**
      * 连接关闭调用的方法(用户下线)
@@ -118,6 +171,4 @@ public class ChatServer {
         //关闭连接，在redis中删除对应用户的连接信息
         redisUtil.del(MessageConstant.USER_ONLINE_REDIS_KEY+userid);
     }
-
-
 }

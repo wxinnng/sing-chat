@@ -5,6 +5,7 @@ import com.xing.chatroomapi.pojo.ChatSession;
 import com.xing.chatroomapi.pojo.dto.CreateGroupUserDTO;
 import com.xing.chatroomapi.pojo.entity.User;
 import com.xing.chatroomapi.pojo.entity.UserRelation;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -23,5 +24,8 @@ public interface UserRelationMapper extends BaseMapper<UserRelation> {
     UserRelation selectByUsers(Integer currentUser, Integer toTarget);
 
     List<CreateGroupUserDTO> getCreateGroupUserDTOListByUserId(Integer currentUser);
+
+    @Delete("delete from user_relation where (user_one = #{id} and user_two = #{currentUser}) or (user_one = #{currentUser} and user_two = #{id})")
+    void removeRelation(Integer id, Integer currentUser);
 
 }

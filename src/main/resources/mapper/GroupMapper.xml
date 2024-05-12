@@ -12,4 +12,19 @@
         where
             m.user_id = #{currentUser}
     </select>
+    <select id="getGroupRelationDetail" resultType="com.xing.chatroomapi.pojo.entity.Group">
+        select
+            g.id,g.group_name,g.owner_id,g.cur_num,g.introduce,g.create_time,m.join_time time
+        from
+            group_info g
+        left join
+            member m
+        on
+            g.id = m.group_id
+        where
+            m.group_id = #{id}
+        and
+            m.user_id = #{userId}
+
+    </select>
 </mapper>

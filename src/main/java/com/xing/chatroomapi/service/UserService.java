@@ -9,6 +9,7 @@ import com.xing.chatroomapi.pojo.entity.User;
 import com.xing.chatroomapi.pojo.vo.ApplicationVO;
 import com.xing.chatroomapi.pojo.vo.UserVO;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -80,4 +81,11 @@ public interface UserService extends IService<User> {
     Integer getUserStatusById(Integer userId);
 
     Relation loadRelationDetail(Integer id, Integer type);
+
+    void updateUserInfo(User user);
+
+
+    HashMap<Integer,CreateGroupUserDTO> loadIdUserInfoHash(Integer id, Integer type);
+
+    void removeUser(Integer id);
 }

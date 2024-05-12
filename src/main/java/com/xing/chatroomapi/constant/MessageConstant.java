@@ -23,4 +23,8 @@ public interface MessageConstant {
     String TOKEN_HEADER = "token";
     String COLLECTION_NAME = "chat_message";
     String USER_ONLINE_REDIS_KEY = "user_online:";
+    String SECRET_ID="your secret_id";
+    String SECRET_KEY="secret_key";
+    String REGION = "region";
+    String BUCKET = "your bucket";
 }
