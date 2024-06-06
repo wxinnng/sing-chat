@@ -52,9 +52,11 @@ public class WebConfig extends WebMvcConfigurationSupport {
         ArrayList<String> path = new ArrayList<>();
         path.add("/user/login");
         path.add("/user/register");
+        path.add("/file/upload");
         registry.addInterceptor(jwtTokenInterceptor)
                 .addPathPatterns("/user/**")
                 .addPathPatterns("/test/**")
+                .addPathPatterns("/file/**")
                 .excludePathPatterns(path);
     }
 

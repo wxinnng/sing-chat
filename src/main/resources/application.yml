@@ -5,6 +5,10 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
 
   datasource:
     druid:
@@ -31,8 +35,15 @@ spring:
       database: admin
       port: 27017
       username: root
-      password: yourpassword
+      password: wangxing
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
+
+minio:
+  bucketName: singing
+  endpoint: http://127.0.0.1:9000
+  accessKey: oxSs7bSxVwrqBIo8N4VN
+  secretKey: uISC7CG0amOn6vn7WSYFTWMWpymS5xP7mJch1Oxp
+  expire: 7200

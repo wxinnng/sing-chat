@@ -20,11 +20,18 @@ public interface MessageConstant {
     Integer CANNOT_BE_YOURSELF_FRIEND = 1005;
     Integer PARAMS_ERROR = 1004;
     Integer USER_INFO_ERROR = 1005;
+    Integer FILE_UPLOAD_ERROR = 9999;
+
     String TOKEN_HEADER = "token";
     String COLLECTION_NAME = "chat_message";
     String USER_ONLINE_REDIS_KEY = "user_online:";
-    String SECRET_ID="your secret_id";
-    String SECRET_KEY="secret_key";
-    String REGION = "region";
-    String BUCKET = "your bucket";
+    String SECRET_ID="AKIDJctMzgVEpTHGHFA3yomv48FLObkneYWR ";
+    String SECRET_KEY="6ITixAKRep299FIIMQZk9Z1eDfzE0iM8";
+    String REGION = "ap-beijing";
+    String BUCKET = "singingchat-1322885130";
+
+    String MINIO_BUCKET = "singing";
+
+    String TEMP = "E:/temp/";
+
 }
