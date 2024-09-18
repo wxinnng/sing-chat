@@ -1,4 +1,4 @@
-package com.healthyrecipes.config;
+package com.xing.chatroomapi.config;
 
 import com.alibaba.fastjson.support.spring.FastJsonRedisSerializer;
 import org.springframework.context.annotation.Bean;

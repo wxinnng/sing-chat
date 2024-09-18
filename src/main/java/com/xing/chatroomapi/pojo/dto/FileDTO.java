@@ -20,5 +20,6 @@ public class FileDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
     private Integer fileCategory;
+    private String filePath;
     private Integer delFlag;
 }

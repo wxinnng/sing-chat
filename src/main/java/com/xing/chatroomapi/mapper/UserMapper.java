@@ -26,4 +26,7 @@ public interface UserMapper extends BaseMapper<User> {
     CreateGroupUserDTO getUserBaseInfo(Integer id);
 
     List<CreateGroupUserDTO> getUserBaseInfoBatch(List<Integer> ids);
+
+
+
 }

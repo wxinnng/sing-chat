@@ -47,6 +47,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private MemberMapper memberMapper;
 
     @Autowired
+    private FileInfoMapper fileInfoMapper;
+
+    @Autowired
     private GroupService groupService;
 
     @Resource
@@ -97,6 +100,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public void removeUser(Integer id) {
         //删除好友就是删除userRelation表中对应的信息
         userRelationMapper.removeRelation(id,BaseContext.getCurrentUser());
+    }
+
+    @Override
+    public Long getUserSpace() {
+        return fileInfoMapper.getUserSpace(BaseContext.getCurrentUser());
     }
 
     @Override

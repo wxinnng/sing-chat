@@ -88,4 +88,6 @@ public interface UserService extends IService<User> {
     HashMap<Integer,CreateGroupUserDTO> loadIdUserInfoHash(Integer id, Integer type);
 
     void removeUser(Integer id);
+
+    Long getUserSpace();
 }

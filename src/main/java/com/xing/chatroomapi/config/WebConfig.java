@@ -35,6 +35,8 @@ public class WebConfig extends WebMvcConfigurationSupport {
     private JwtTokenInterceptor jwtTokenInterceptor;
 
 
+
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         //跨域配置所有的域名ip都可以

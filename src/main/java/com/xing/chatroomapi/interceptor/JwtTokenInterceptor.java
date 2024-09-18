@@ -37,7 +37,7 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
 
             //解析出User
             Integer userId = claims.get("user", Integer.class);
-            log.info("userId======================>{}",userId);
+            log.info("userId ======================> {}",userId);
             //放到ThreadLocal中
             BaseContext.setCurrentUser(userId);
 

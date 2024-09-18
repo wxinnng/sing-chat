@@ -11,6 +11,7 @@ public interface MessageConstant {
     Integer REJECTED = 2;
     String SECRETE_KEY = "SingingChat";
     Long  EXPIRATION_TIME = 3600000000L;
+    Long DEFAULT_CHUNK_SIZE = 1024 * 1024 * 5L;
     Integer SERVER_ERROR = 500;
     Integer LOGIN_ERROR = 1001;
     Integer REGISTER_ERROR = 1002;
@@ -25,7 +26,7 @@ public interface MessageConstant {
     String TOKEN_HEADER = "token";
     String COLLECTION_NAME = "chat_message";
     String USER_ONLINE_REDIS_KEY = "user_online:";
-    String SECRET_ID="AKIDJctMzgVEpTHGHFA3yomv48FLObkneYWR ";
+    String SECRET_ID="AKIDJctMzgVEpTHGHFA3yomv48FLObkneYWR";
     String SECRET_KEY="6ITixAKRep299FIIMQZk9Z1eDfzE0iM8";
     String REGION = "ap-beijing";
     String BUCKET = "singingchat-1322885130";

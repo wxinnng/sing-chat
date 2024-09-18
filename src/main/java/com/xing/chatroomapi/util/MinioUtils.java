@@ -6,11 +6,9 @@ import com.xing.chatroomapi.exception.GeneralException;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
-import io.minio.messages.Bucket;
-import io.minio.messages.DeleteError;
-import io.minio.messages.DeleteObject;
-import io.minio.messages.Item;
+import io.minio.messages.*;
 import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import com.xing.chatroomapi.properties.MinioProperties;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -19,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -214,8 +213,98 @@ public class MinioUtils {
         String url= bucketName + "/" + objectName;
         log.info("上传minIo后文件url的值为:{}", url);
         return url;
-
     }
+
+
+    /**
+     * @description 上传分片文件
+     * @param inputStream    输入流
+     * @param objectName     文件路径
+     * @param bucketName     桶名称
+     */
+    @SneakyThrows
+    public void putChunkObject(InputStream inputStream, String bucketName, String objectName) {
+        try {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(objectName)
+                            .stream(inputStream, inputStream.available(), -1)
+                            .build());
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+        }
+    }
+
+
+
+    /**
+     * @description 文件合并
+     * @param originBucketName      分块文件所在的桶
+     * @param targetBucketName      合并文件生成文件所在的桶
+     * @param objectName            存储于桶中的对象名
+     */
+    @SneakyThrows
+    public String composeObject(String originBucketName, String targetBucketName, String objectName,String type) {
+
+        Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder()
+                        .bucket(originBucketName)
+                        .prefix(objectName + "/")
+                        .build()
+        );
+
+        List<String> objectNameList = new ArrayList<>();
+
+        for (Result<Item> result : results) {
+            Item item = result.get();
+            objectNameList.add(item.objectName());
+        }
+
+        if (ObjectUtils.isEmpty(objectNameList)) {
+            throw new IllegalArgumentException(originBucketName + "桶中没有文件，请检查");
+        }
+
+        List<ComposeSource> composeSourceList = new ArrayList<>(objectNameList.size());
+
+        // 对文件名集合进行升序排序
+        objectNameList.sort((o1, o2) -> Integer.parseInt(getIndex(o2)) > Integer.parseInt(getIndex(o1)) ? -1 : 1);
+
+        for (String object : objectNameList) {
+            composeSourceList.add(ComposeSource.builder()
+                    .bucket(originBucketName)
+                    .object(object)
+                    .build());
+        }
+
+        return composeObject(composeSourceList, targetBucketName, objectName,type);
+    }
+
+    private String getIndex(String objectName){
+        return objectName.substring(objectName.lastIndexOf("/")+1);
+    }
+
+    /**
+     * @description 文件合并
+     * @param bucketName          合并文件生成文件所在的桶
+     * @param objectName          原始文件名
+     * @param sourceObjectList    分块文件集合
+     */
+    @SneakyThrows
+    public String composeObject(List<ComposeSource> sourceObjectList, String bucketName, String objectName,String type) {
+
+        System.out.println(type+"/"+objectName+"."+type);
+        minioClient.composeObject(ComposeObjectArgs.builder()
+                .bucket(bucketName)
+                .object(type+"/"+objectName+"."+type)
+                .sources(sourceObjectList)
+                .build());
+        return bucketName +"/"+ type + "/" + objectName+ "." + type;
+    }
+
+
 
 
     /**
@@ -457,6 +546,46 @@ public class MinioUtils {
         }
     }
 
+    public boolean  deleteFolder(String bucketName, String objectName) {
+        Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder()
+                        .bucket(bucketName)
+                        .prefix(objectName + "/")
+                        .build()
+        );
+
+        results.forEach(e -> {
+            try {
+                minioClient.removeObject(
+                        RemoveObjectArgs.builder()
+                                .bucket(bucketName)
+                                .object(e.get().objectName())
+                                .build()
+                );
+            } catch (ErrorResponseException ex) {
+                throw new RuntimeException(ex);
+            } catch (InsufficientDataException ex) {
+                throw new RuntimeException(ex);
+            } catch (InternalException ex) {
+                throw new RuntimeException(ex);
+            } catch (InvalidKeyException ex) {
+                throw new RuntimeException(ex);
+            } catch (InvalidResponseException ex) {
+                throw new RuntimeException(ex);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            } catch (NoSuchAlgorithmException ex) {
+                throw new RuntimeException(ex);
+            } catch (ServerException ex) {
+                throw new RuntimeException(ex);
+            } catch (XmlParserException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        return true;
+    }
+
+
     /**
      * 文件大小
      *
@@ -481,4 +610,6 @@ public class MinioUtils {
         }
         return fileSizeString;
     }
+
+
 }

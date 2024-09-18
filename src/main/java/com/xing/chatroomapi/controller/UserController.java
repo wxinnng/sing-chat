@@ -7,18 +7,15 @@ import com.xing.chatroomapi.pojo.entity.User;
 import com.xing.chatroomapi.pojo.vo.ResultJson;
 import com.xing.chatroomapi.service.UserService;
 import com.xing.chatroomapi.util.BaseContext;
-import com.xing.chatroomapi.util.FileUtil;
 import com.xing.chatroomapi.util.TencentCosUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 
 
@@ -68,9 +65,10 @@ public class UserController extends BaseController{
             return ResultJson.success(userService.register(nickName,password));
         }catch (BusinessException e){
             return ResultJson.error(e.getMessage(), MessageConstant.REGISTER_ERROR);
-        }catch (Exception e){
-            return ResultJson.error("服务器异常!",MessageConstant.SERVER_ERROR);
         }
+//        catch (Exception e){
+//            return ResultJson.error("服务器异常!",MessageConstant.SERVER_ERROR);
+//        }
     }
 
     /**
@@ -203,6 +201,9 @@ public class UserController extends BaseController{
         //传到oos中
         String url = TencentCosUtil.uploadfile(file);
 
+        if (url == null)
+            return ResultJson.error("上传失败",MessageConstant.FILE_UPLOAD_ERROR);
+
         //封装用户信息
         User user = new User();
         user.setAvatar(url);
@@ -256,4 +257,11 @@ public class UserController extends BaseController{
         userService.removeUser(id);
         return ResultJson.success();
     }
+
+    @GetMapping("/space")
+    @ApiOperation("获得用户使用的空间")
+    public ResultJson getUserSpace(){
+        return ResultJson.success(userService.getUserSpace());
+    }
+
 }

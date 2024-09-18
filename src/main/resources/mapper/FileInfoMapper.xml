@@ -3,13 +3,69 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.xing.chatroomapi.mapper.FileInfoMapper">
+    <update id="updateFileInfoByFileId">
+
+        UPDATE file_info
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="fileMd5 != null and fileMd5 != ''">
+                file_md5 = #{fileMd5},
+            </if>
+            <if test="filePid != null and filePid != ''">
+                file_pid = #{filePid},
+            </if>
+            <if test="fileSize != null">
+                file_size = #{fileSize},
+            </if>
+            <if test="fileName != null and fileName != ''">
+                file_name = #{fileName},
+            </if>
+            <if test="filePath != null and filePath != ''">
+                file_path = #{filePath},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="fileCategory != null">
+                file_category = #{fileCategory},
+            </if>
+            <if test="state != null">
+                state = #{state},
+            </if>
+            <if test="delFlag != null">
+                del_flag = #{delFlag},
+            </if>
+        </set>
+        WHERE file_id = #{fileId}
+    </update>
 
     <select id="selectByUserIdAndPidGroup" resultType="com.xing.chatroomapi.pojo.dto.FileDTO">
-        select file_id,user_id,file_pid,file_name,create_time,file_category,del_flag
+        select file_id,user_id,file_pid,file_name,create_time,file_category,del_flag,file_path
         from file_info
         where
         user_id = #{user}
         and
         file_pid = #{pid}
+        and
+        del_flag = 2
+    </select>
+    <select id="getUserSpace" resultType="java.lang.Long">
+        select sum(file_size)
+        from file_info
+        where
+        user_id = #{user}
+<!--        and-->
+<!--        del_flag = 2-->
+    </select>
+    <select id="getRecycleList" resultType="com.xing.chatroomapi.pojo.entity.FileInfo">
+        select file_id,file_name,file_size,create_time
+        from
+        file_info
+        where
+        user_id = #{user}
+        and
+        del_flag = 1
     </select>
 </mapper>

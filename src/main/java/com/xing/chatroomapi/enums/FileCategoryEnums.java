@@ -22,12 +22,13 @@ public enum FileCategoryEnums {
     MP4(12,"mp4"),
     PDF(13,"pdf"),
     PNG(14,"png"),
-    PPT(15,"ppt"),
+    PPT(15,"pptx"),
     SQL(16,"sql"),
     TXT(17,"txt"),
     DOCX(18,"docx"),
     DOC(19,"doc"),
-    OTHER(20,"other");
+    OTHER(20,"other"),
+    MD(21, "md");
 
 
     private Integer category;

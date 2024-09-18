@@ -54,6 +54,7 @@ import java.util.Random;
             cosClient.putObject(objectRequest);
         }catch (Exception e){
             System.err.println(e.getMessage());
+            return null;
         }finally {
             cosClient.shutdown();
         }
